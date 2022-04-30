@@ -103,10 +103,14 @@ def _get_keypoints(candidates, subsets):
 
 class BodyPoseEstimator(object):
     
-    def __init__(self, pretrained=False):
+    def __init__(self, pretrained=False, use_cuda=True):
+        self.use_cuda = use_cuda
         self._model = BodyPoseModel()
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and self.use_cuda:
+            print('Using GPU..')
             self._model = self._model.cuda()
+        else:
+            print('Using CPU..')
         if pretrained:
             state_dict = _load_state_dict_from_url(model_url, model_dir)
             self._model = _load_state_dict(self._model, state_dict)
@@ -131,7 +135,7 @@ class BodyPoseEstimator(object):
             image_tensor = np.float32(image_tensor) / 255.0 - 0.5
             image_tensor = np.ascontiguousarray(image_tensor)
             image_tensor = torch.from_numpy(image_tensor).float()
-            if torch.cuda.is_available():
+            if torch.cuda.is_available() and self.use_cuda:
                 image_tensor = image_tensor.cuda()
             
             with torch.no_grad():
