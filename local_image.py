@@ -29,21 +29,22 @@ def save_img(img, path):
     cv2.imwrite(path, img)
 
 
-def main(input_folder, output_folder):
+def main(input_folder, output_folder, use_cuda=False):
     
     io_time = 0
     compute_time = 0
     other_time = 0
 
     model_download_time = time.time()
-    estimator = BodyPoseEstimator(pretrained=True, use_cuda=False)
+    estimator = BodyPoseEstimator(pretrained=True, use_cuda=use_cuda)
     model_download_time = time.time() - model_download_time
 
     other_t = time.time()
-    images_zip = zip(*get_img_paths(input_folder))
+    image_paths, image_names = get_img_paths(input_folder)
     other_time += time.time() - other_t
 
-    for image_path, image_name in tqdm(images_zip):
+    print(f'Processing {len(image_names)} images using {"GPU" if use_cuda else "CPU"} ...')
+    for image_path, image_name in tqdm(zip(image_paths, image_names)):
         io_t = time.time()
         img_input = load_img(image_path)
         io_time += time.time() - io_t
@@ -63,7 +64,9 @@ def main(input_folder, output_folder):
 
 
 if __name__ == "__main__":
-    input_folder = r"C:\Users\Mobin\Desktop\Mobin\eca-dl\data\image\batch64"
+    input_folder = r"C:\Users\Mobin\Desktop\Mobin\eca-dl\data\image\batch128"
+    use_cuda = True
+
     other_time = time.time()
     path, folder = os.path.split(input_folder)
     output_folder = os.path.join(path, folder+'_pose')
@@ -72,7 +75,7 @@ if __name__ == "__main__":
     other_ti = other_time + time.time()
     # print(f'-- other time is: {other_time} seconds')
     
-    other_time, io_time, compute_time = main(input_folder, output_folder)
+    other_time, io_time, compute_time = main(input_folder, output_folder, use_cuda)
     print(f'-- other time is: {other_time+other_ti} seconds')
     print(f'-- io time is: {io_time} seconds')
     print(f'-- compute time is: {compute_time} seconds')

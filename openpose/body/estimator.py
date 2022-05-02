@@ -107,10 +107,7 @@ class BodyPoseEstimator(object):
         self.use_cuda = use_cuda
         self._model = BodyPoseModel()
         if torch.cuda.is_available() and self.use_cuda:
-            print('Using GPU..')
             self._model = self._model.cuda()
-        else:
-            print('Using CPU..')
         if pretrained:
             state_dict = _load_state_dict_from_url(model_url, model_dir)
             self._model = _load_state_dict(self._model, state_dict)

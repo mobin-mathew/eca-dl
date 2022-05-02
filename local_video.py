@@ -10,13 +10,13 @@ from openpose.body.estimator import BodyPoseEstimator
 from openpose.utils import draw_body_connections, draw_keypoints
 
 
-def main(input_file_path, output_file_path):
+def main(input_file_path, output_file_path, use_cuda=False, video_name='Video'):
     io_time = 0
     compute_time = 0
     other_time = 0
 
     other_t = time.time()
-    estimator = BodyPoseEstimator(pretrained=True, use_cuda=False)
+    estimator = BodyPoseEstimator(pretrained=True, use_cuda=use_cuda)
     other_time += time.time() - other_t
 
     io_t = time.time() 
@@ -30,7 +30,7 @@ def main(input_file_path, output_file_path):
     writer = cv2.VideoWriter(output_file_path, fourcc, fps, (w, h))
     io_time += time.time() - io_t
 
-    print('Processing Video..')
+    print(f'Processing {video_name} using {"GPU" if use_cuda else "CPU"} ...')
     def tqdm_generator():
         while videoclip.isOpened():
             yield
@@ -45,11 +45,11 @@ def main(input_file_path, output_file_path):
         keypoints = estimator(frame)
         frame = draw_body_connections(frame, keypoints, thickness=2, alpha=0.7)
         frame = draw_keypoints(frame, keypoints, radius=4, alpha=0.8)
-        compute_time = time.time() - compute_t
+        compute_time += time.time() - compute_t
 
         io_t = time.time()
         writer.write(frame)
-        io_time = time.time() - io_t
+        io_time += time.time() - io_t
     
     videoclip.release()
 
@@ -57,9 +57,12 @@ def main(input_file_path, output_file_path):
 
 
 if __name__ == "__main__":
-    input_file_path = r"data\video\dance.mp4"
-    output_file_path = r"data\video\output.mp4"
-    other_time, io_time, compute_time = main(input_file_path, output_file_path)
+    input_file_path = r"data\video\dance2.mp4"
+    output_file_path = r"data\video\output2.mp4"
+
+    video_name = input_file_path.split("\\")[-1]
+    use_cuda = True
+    other_time, io_time, compute_time = main(input_file_path, output_file_path, use_cuda, video_name)
     print(f'-- other time is: {other_time} seconds')
     print(f'-- io time is: {io_time} seconds')
     print(f'-- compute time is: {compute_time} seconds')
