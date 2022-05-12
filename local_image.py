@@ -12,7 +12,7 @@ from openpose.utils import draw_body_connections, draw_keypoints
 
 
 def get_img_paths(img_folder):
-    image_names = os.listdir(img_folder)
+    image_names = [x for x in os.listdir(img_folder) if x.endswith('.jpg') or x.endswith('.jpeg')]
     image_paths = [
         os.path.join(img_folder, image) 
         for image in image_names
@@ -64,8 +64,8 @@ def main(input_folder, output_folder, use_cuda=False):
 
 
 if __name__ == "__main__":
-    input_folder = r"C:\Users\Mobin\Desktop\Mobin\eca-dl\data\image\batch128"
-    use_cuda = True
+    input_folder = r"C:\Users\Mobin\Desktop\Mobin\eca-dl\data\image\batch32"
+    use_cuda = False
 
     other_time = time.time()
     path, folder = os.path.split(input_folder)
